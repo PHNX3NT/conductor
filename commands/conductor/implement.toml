@@ -83,7 +83,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 6.0 SYNCHRONIZE PROJECT DOCUMENTATION
 **PROTOCOL: Update project-level documentation based on the completed track.**
 
-1.  **Execution Trigger:** This protocol MUST only be executed when a track has reached a `[x] Completed` status in the main plan. DO NOT execute this protocol for any other track status changes.
+1.  **Execution Trigger:** This protocol MUST only be executed when a track has reached a `[x]` status in the main plan. DO NOT execute this protocol for any other track status changes.
 
 2.  **Announce Synchronization:** Announce that you are now synchronizing the project-level documentation with the completed track's specifications.
 
@@ -134,4 +134,37 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         > - **No changes needed for `product-guidelines.md`:** Core product guidelines remain unchanged."
     - **Example (if no files were changed):**
         > "Documentation synchronization is complete. No updates were necessary for `product.md`, `tech-stack.md`, or `product-guidelines.md` based on the completed track."
+
+---
+
+## 7.0 TRACK CLEANUP
+**PROTOCOL: Offer to archive or delete the completed track.**
+
+1.  **Execution Trigger:** This protocol MUST only be executed after the current track has been successfully implemented and the `SYNCHRONIZE PROJECT DOCUMENTATION` step is complete.
+
+2.  **Ask for User Choice:** You MUST prompt the user with the available options for the completed track.
+    > "Track '<track_description>' is now complete. What would you like to do?
+    > A.  **Archive:** Move the track's folder to `.conductor/archive/` and remove it from the main plan.
+    > B.  **Delete:** Permanently delete the track's folder and remove it from the main plan.
+    > C.  **Skip:** Do nothing and leave it in the main plan.
+    > Please enter the number of your choice (A, B, or C)."
+
+3.  **Handle User Response:**
+    *   **If user chooses "A" (Archive):**
+        i.   **Create Archive Directory:** Check for the existence of `.conductor/archive/`. If it does not exist, create it.
+        ii.  **Archive Track Folder:** Move the track's folder from `.conductor/tracks/<track_id>` to `.conductor/archive/<track_id>`.
+        iii. **Remove from Main Plan:** Read the content of `.conductor/plan.md`, remove the entire section for the completed track (the part that starts with `---` and contains the track description), and write the modified content back to the file.
+        iv.  **Announce Success:** Announce: "Track '<track_description>' has been successfully archived."
+    *   **If user chooses "B" (Delete):**
+        i. **CRITICAL WARNING:** Before proceeding, you MUST ask for a final confirmation due to the irreversible nature of the action.
+            > "WARNING: This will permanently delete the track folder and all its contents. This action cannot be undone. Are you sure you want to proceed? (yes/no)"
+        ii. **Handle Confirmation:**
+            - **If 'yes'**:
+                a. **Delete Track Folder:** Permanently delete the track's folder from `.conductor/tracks/<track_id>`.
+                b. **Remove from Main Plan:** Read the content of `.conductor/plan.md`, remove the entire section for the completed track, and write the modified content back to the file.
+                c. **Announce Success:** Announce: "Track '<track_description>' has been permanently deleted."
+            - **If 'no' (or anything else)**:
+                a. **Announce Cancellation:** Announce: "Deletion cancelled. The track has not been changed."
+    *   **If user chooses "C" (Skip) or provides any other input:**
+        *   Announce: "Okay, the completed track will remain in your main plan for now."
 """
